@@ -5,11 +5,11 @@ import "./App.css";
 
 import AuthService from "./services/auth.service";
 
-import Login from "./components/login/login.component";
 import Control from "./components/control/control.component";
 import Hub from "./components/hub/hub.component";
 
 import EventBus from "./common/EventBus";
+import Main from "./components/control/main.component";
 
 class App extends Component {
   constructor(props) {
@@ -58,9 +58,8 @@ class App extends Component {
     return (
       <div>
         <Routes>
-          <Route path="/" element={<Control />} />
+          <Route path="/" element={<Main />} />
           <Route path="/hub" element={<Hub />} />
-          <Route path="/login" element={<Login />} />
         </Routes>
       </div>
     );
