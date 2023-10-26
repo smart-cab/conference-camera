@@ -1,7 +1,7 @@
 import axios from 'axios';
 import authHeader from './auth-header';
 
-const API_URL = 'http://localhost:8768/api/v1/';
+const API_URL = 'http://localhost:8888/api/v1/';
 
 class UserService {
   ping() {

@@ -18,7 +18,7 @@ export default class Hub extends Component {
       autoqr: false,
     };
 
-    this.socket = new WebSocket('ws://127.0.0.1:8768/ws');
+    this.socket = new WebSocket('wss://192.168.1.13:8888/ws');
   }
 
   componentDidMount() {

@@ -17,7 +17,7 @@ class Main extends Component {
     }
 
     this.handleScan = this.handleScan.bind(this)
-    this.socket = new WebSocket('ws://127.0.0.1:8768/ws');
+    this.socket = new WebSocket('wss://192.168.1.13:8888/ws');
   }
 
 

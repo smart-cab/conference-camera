@@ -40,9 +40,14 @@ func Run() {
 	api.Routes()
 
 	// Run http server
-	api.App.Run(fmt.Sprintf(
+	// api.App.Run(fmt.Sprintf(
+	// 	"%s:%s",
+	// 	os.Getenv("IP"),
+	// 	os.Getenv("PORT"),
+	// ))
+	api.App.RunTLS(fmt.Sprintf(
 		"%s:%s",
 		os.Getenv("IP"),
 		os.Getenv("PORT"),
-	))
+	), "./frontend/cert/server.cert", "./frontend/cert/server.key")
 }
