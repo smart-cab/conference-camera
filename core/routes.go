@@ -6,8 +6,6 @@ import (
 )
 
 func (api *Api) Routes() {
-	api.App.GET("/ws", handlers.WebSocket)
-
 	r := api.App.Group("/api/v1")
 
 	r.Use(middlewares.Handler(api.Log))
@@ -15,7 +13,9 @@ func (api *Api) Routes() {
 	r.Use(middlewares.Cors())
 
 	{
+		r.GET("/ws", handlers.WebSocket)
 		r.GET("/ping", handlers.Ping)
+		r.GET("/video", handlers.ServeVideoStream)
 		r.GET("/hub", handlers.Validate)
 	}
 }

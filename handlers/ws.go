@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -24,8 +26,11 @@ var (
 )
 
 func WebSocket(c *gin.Context) {
+	log := c.MustGet("log").(*logrus.Logger)
+
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
+		log.Errorln("fake websocket")
 		c.Error(types.INCORRECT_WEBSOCKET)
 		return
 	}
@@ -53,6 +58,7 @@ func WebSocket(c *gin.Context) {
 
 			// Check conn is from hub or not???
 			if hub != nil && hub != conn {
+				log.Errorf("user %s try start already hub", conn.LocalAddr())
 				conn.WriteMessage(websocket.TextMessage, []byte("error:already"))
 				return
 			}
@@ -62,13 +68,13 @@ func WebSocket(c *gin.Context) {
 			case "init":
 				// Отправялем клиент, включена ли автоматическая генерация QR кода или нужно через апи
 				conn.WriteMessage(websocket.TextMessage, []byte("autoqr:"+os.Getenv("AUTO_QR_CODE")))
-				fmt.Println("hub connected successful!")
+				log.Infof("user %s start hub successful", conn.LocalAddr())
 			case "token":
 				// Генерируем новый токен и отсылаем клиенту
 				if os.Getenv("AUTO_QR_CODE") == "1" {
 					token = randToken(32)
 					conn.WriteMessage(websocket.TextMessage, []byte("token:"+token))
-					fmt.Println("sent token to hub")
+					log.Infof("sent token %s to hub to user: %s", token, conn.LocalAddr())
 				}
 			default:
 				fmt.Println("unknown action")
@@ -83,15 +89,17 @@ func WebSocket(c *gin.Context) {
 			// USER ACTIONS
 			switch data[1] {
 			case "init": // user:init
-				fmt.Println("user open page for connect")
+				log.Infof("user %s init connection tab", conn.LocalAddr())
 			case "connect": // user:connect:TOKEN
 				// Проверяем токен для авторизации
-				fmt.Println("user try connect " + data[2])
+				log.Infof("user %s try auth to hub: %s", conn.LocalAddr(), data[2])
 				if data[2] != token {
 					// Неверный токен, отсылаем wrong
+					log.Errorf("user %s wrong token: %s", conn.LocalAddr(), data[2])
 					conn.WriteMessage(websocket.TextMessage, []byte("wrong"))
 				} else {
 					// Верный токен, записываем подключение в client и отсылаем хабу о клиенте
+					log.Errorf("user %s successful connected!", conn.LocalAddr())
 					client = conn
 					conn.WriteMessage(websocket.TextMessage, []byte("connected"))
 					hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
@@ -102,6 +110,8 @@ func WebSocket(c *gin.Context) {
 }
 
 func randToken(n int) string {
+	rand.Seed(time.Now().UnixNano()) // fix repeat tokens
+
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 	b := make([]rune, n)
 	for i := range b {

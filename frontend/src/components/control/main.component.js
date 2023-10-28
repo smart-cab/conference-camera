@@ -7,6 +7,7 @@ import { withRouter } from '../../common/with-router';
 import Control from "./control.component";
 
 class Main extends Component {
+
   constructor(props) {
     super(props)
     this.state = {
@@ -16,8 +17,11 @@ class Main extends Component {
       connecting: false,
     }
 
-    this.handleScan = this.handleScan.bind(this)
-    this.socket = new WebSocket('wss://192.168.1.13:8888/ws');
+    console.log(window.location.hostname)
+    this.socket = new WebSocket(`ws://${window.location.hostname}:8888/api/v1/ws`);
+
+    let params = new URLSearchParams(window.location.search)
+    this.token = params.get("token");
   }
 
 
@@ -25,6 +29,7 @@ class Main extends Component {
     this.socket.onopen = () => {
       this.socket.send("user:init");
       this.setState({ connecting: true })
+      this.socket.send("user:connect:" + this.token)
     };
 
     this.socket.onmessage = (event) => {
@@ -40,6 +45,8 @@ class Main extends Component {
       } else if (response == 'already') {
         // уже есть подключенный пользователь
         this.setState({ error: 'Клиент уже подключен с другого устройства' })
+      } else if (response == 'wrong') {
+        this.setState({ error: 'Неверный токен авторизации' })
       }
     };
 
@@ -52,15 +59,6 @@ class Main extends Component {
     };
   }
 
-  handleScan(data){
-    if (data) {
-      // отправляем на бек токен с qr кода
-      this.socket.send("user:connect:" + data.text)
-    }
-  }
-  handleError(err) {
-    console.error(err)
-  }
 
   render() {
     if (!this.state.connecting) {

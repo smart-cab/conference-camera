@@ -18,7 +18,7 @@ export default class Hub extends Component {
       autoqr: false,
     };
 
-    this.socket = new WebSocket('wss://192.168.1.13:8888/ws');
+    this.socket = new WebSocket(`ws://${window.location.hostname}:8888/api/v1/ws`);
   }
 
   componentDidMount() {
@@ -33,7 +33,7 @@ export default class Hub extends Component {
       console.log('Received response from socket:', response);
       if (response.startsWith("token:")) {
         // Получаем токен от бека и генерируем новый QR код
-        const token = response.replace("token:", "");
+        const token = `http://${window.location.hostname}:3000/?token=${response.replace("token:", "")}`;
         this.setState({ token });
       } 
       else if (response.startsWith("error:")) 

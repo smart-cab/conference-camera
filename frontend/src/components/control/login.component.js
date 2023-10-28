@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import Form from "react-validation/build/form";
-import QrReader from 'react-qr-scanner'
 
 export default function Login({ onHandleScan, error }) {
   const previewStyle = {
@@ -18,16 +17,9 @@ export default function Login({ onHandleScan, error }) {
           <h1 className="h3 mb-3 font-weight-normal">Сканируйте QR код</h1>
         </div>
 
-        <QrReader
-          delay="2000"
-          style={previewStyle}
-          onScan={onHandleScan}
-          onError={function (){}}
-        />
-        
         {error ? (
           <div className="form-group">
-            <div className="alert alert-danger" role="alert">
+            <div className="alert alert-danger text-center" role="alert">
               {error}
            </div>
           </div>

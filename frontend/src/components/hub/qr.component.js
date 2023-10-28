@@ -12,7 +12,7 @@ export default function Qr({ token }) {
               </div>
               <div className="mt-5">
                 <div>DEBUG INFO</div>
-                192.168.1.1 — {token}
+                <a href={token}>{token}</a>
               </div>
             </div>
           </div>

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"conferencecam/ptz"
 	"fmt"
 	"os"
 
@@ -34,20 +35,21 @@ func Run() {
 		api.Log.Fatal("failed load env config")
 	}
 
+	if err := ptz.Init(); err != nil {
+		api.Log.Fatalf("failed start camera: %s", err.Error())
+	}
+
 	// Init gin engine
 	gin.SetMode(gin.ReleaseMode)
 	api.App = gin.Default()
 	api.Routes()
 
+	api.Log.Println("Server started!")
 	// Run http server
-	// api.App.Run(fmt.Sprintf(
-	// 	"%s:%s",
-	// 	os.Getenv("IP"),
-	// 	os.Getenv("PORT"),
-	// ))
-	api.App.RunTLS(fmt.Sprintf(
+	api.App.Run(fmt.Sprintf(
 		"%s:%s",
 		os.Getenv("IP"),
 		os.Getenv("PORT"),
-	), "./frontend/cert/server.cert", "./frontend/cert/server.key")
+	))
+
 }
