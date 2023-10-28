@@ -20,9 +20,9 @@ var (
 		WriteBufferSize: 1024,
 		CheckOrigin:     func(r *http.Request) bool { return true }, // for cors
 	}
-	client *websocket.Conn
 	hub    *websocket.Conn
 	token  string
+	Client *websocket.Conn
 )
 
 func WebSocket(c *gin.Context) {
@@ -40,11 +40,11 @@ func WebSocket(c *gin.Context) {
 		if err != nil {
 			if conn == hub {
 				hub = nil
-				if client != nil {
-					client.WriteMessage(websocket.TextMessage, []byte("disconnected"))
+				if Client != nil {
+					Client.WriteMessage(websocket.TextMessage, []byte("disconnected"))
 				}
-			} else if conn == client {
-				client = nil
+			} else if conn == Client {
+				Client = nil
 				if hub != nil {
 					hub.WriteMessage(websocket.TextMessage, []byte("disconnected"))
 				}
@@ -80,7 +80,7 @@ func WebSocket(c *gin.Context) {
 				fmt.Println("unknown action")
 			}
 		} else if data[0] == "user" {
-			if client != nil && client != conn {
+			if Client != nil && Client != conn {
 				// Если у нас уже есть авторизованный клиент, то никому не даем доступ
 				conn.WriteMessage(websocket.TextMessage, []byte("already"))
 				return
@@ -98,9 +98,9 @@ func WebSocket(c *gin.Context) {
 					log.Errorf("user %s wrong token: %s", conn.LocalAddr(), data[2])
 					conn.WriteMessage(websocket.TextMessage, []byte("wrong"))
 				} else {
-					// Верный токен, записываем подключение в client и отсылаем хабу о клиенте
+					// Верный токен, записываем подключение в Client и отсылаем хабу о клиенте
 					log.Errorf("user %s successful connected!", conn.LocalAddr())
-					client = conn
+					Client = conn
 					conn.WriteMessage(websocket.TextMessage, []byte("connected"))
 					hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
 				}
