@@ -35,7 +35,7 @@ func Run() {
 		api.Log.Fatal("failed load env config")
 	}
 
-	if err := ptz.Init(); err != nil {
+	if err := ptz.Init("/dev/video0"); err != nil {
 		api.Log.Fatalf("failed start camera: %s", err.Error())
 	}
 

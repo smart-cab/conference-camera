@@ -13,21 +13,26 @@ var (
 	Frames <-chan []byte
 )
 
-func Init() error {
-	camera, err := device.Open(
-		"/dev/video0",
-		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: 640, Height: 480}),
+func Init(path string) error {
+	var err error
+	Camera, err = device.Open(
+		path,
+		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: 1920, Height: 1080}),
 	)
 	if err != nil {
 		return err
 	}
 
-	if err := camera.Start(context.TODO()); err != nil {
+	if err := Camera.Start(context.TODO()); err != nil {
 		return err
 	}
 
-	Frames = camera.GetOutput()
+	Frames = Camera.GetOutput()
 	return nil
+}
+
+func Close() error {
+	return Camera.Close()
 }
 
 func SendCmd(cmd string) {
