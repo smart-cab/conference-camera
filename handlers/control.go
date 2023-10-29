@@ -26,9 +26,13 @@ func ServeVideoStream(c *gin.Context) {
 			return
 		}
 
-		if _, err := partWriter.Write(frame); err != nil {
-			log.Printf("failed to write image: %s", err)
-			return
+		if err := ptz.RunFaceDetect(partWriter, frame); err != nil {
+			log.Printf("face detection failed: %s", err)
+			continue
 		}
+		// if _, err := partWriter.Write(frame); err != nil {
+		// 	log.Printf("failed to write image: %s", err)
+		// 	return
+		// }
 	}
 }
