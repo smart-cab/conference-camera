@@ -35,8 +35,11 @@ func Run() {
 		api.Log.Fatal("failed load env config")
 	}
 
-	if err := ptz.Init("/dev/video0"); err != nil {
-		api.Log.Fatalf("failed start camera: %s", err.Error())
+	devices := ptz.GetActiveDevices()
+	if len(devices) > 0 {
+		if err := ptz.Init(devices[0].Name()); err != nil {
+			api.Log.Fatalf("failed start camera: %s", err.Error())
+		}
 	}
 
 	// Init gin engine

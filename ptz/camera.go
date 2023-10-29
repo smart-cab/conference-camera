@@ -32,10 +32,40 @@ func Init(path string) error {
 }
 
 func Close() error {
+	if Camera == nil {
+		return nil
+	}
 	return Camera.Close()
 }
 
 func SendCmd(cmd string) {
 	// TODO
 	fmt.Printf("Send command to PTZ camera: %s", cmd)
+}
+
+func GetActiveDevices() []*device.Device {
+	var result []*device.Device
+	devices, err := device.GetAllDevicePaths()
+
+	if err != nil {
+		return nil
+	}
+
+	for _, d := range devices {
+		if temp_device, err := device.Open(d); err == nil {
+			result = append(result, temp_device)
+		}
+	}
+
+	return result
+}
+
+func GetDevices() ([]string, error) {
+	var result []string
+
+	for _, d := range GetActiveDevices() {
+		result = append(result, d.Name()+":"+d.Capability().Card)
+	}
+
+	return result, nil
 }

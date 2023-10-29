@@ -15,6 +15,7 @@ class Main extends Component {
       auth: false,
       error: null,
       connecting: false,
+      devices: {},
     }
 
     console.log(window.location.hostname)
@@ -35,7 +36,7 @@ class Main extends Component {
     this.socket.onmessage = (event) => {
       const response = event.data;
       console.log('Received response from socket:', response);
-      
+
       if (response == 'connected') {
         // токен успешно принят
         this.setState({ auth: true })
@@ -47,16 +48,34 @@ class Main extends Component {
         this.setState({ error: 'Клиент уже подключен с другого устройства' })
       } else if (response == 'wrong') {
         this.setState({ error: 'Неверный токен авторизации' })
+      } else if (response.startsWith("devices:")) {
+        let devices = {}
+
+        response.replace("devices:", "").split('|').forEach(device => {
+          const [path, name] = device.split(':');
+          if (path && name) {
+            devices[name.trim()] = path.trim();
+          }
+        });
+
+        this.setState({ devices: devices })
+
+        // список девайсов камеры
       }
     };
 
     this.socket.onclose = (event) => {
-      
+
     };
 
     this.socket.onerror = (error) => {
-      
+
     };
+  }
+
+  handleDeviceChange = (event) => {
+    window.location.reload()
+    this.socket.send("user:device:" + event.target.value);
   }
 
 
@@ -71,13 +90,13 @@ class Main extends Component {
     if (!this.state.auth) {
       // Отображаем сканнер QR кода
       return (
-        <Login onHandleScan={this.handleScan} error={this.state.error}/>
+        <Login onHandleScan={this.handleScan} error={this.state.error} />
       );
     }
 
     // Даем доступ к админке
     return (
-      <Control />
+      <Control devices={this.state.devices} deviceSelect={this.handleDeviceChange} />
     );
   }
 }
