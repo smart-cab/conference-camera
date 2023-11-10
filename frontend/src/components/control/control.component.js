@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, deviceSelect }) {
+export default function Control({ devices, selectedDevice, deviceSelect }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
 
   return (
@@ -32,7 +32,7 @@ export default function Control({ devices, deviceSelect }) {
             <hr></hr>
             <h6>Настройки камеры</h6>
             <label className="pr-2">Камера:</label>
-            <select onChange={deviceSelect}>
+            <select onChange={deviceSelect} value={selectedDevice}>
               {Object.entries(devices).map(([key, value]) => (
                 <option key={key} value={value}>
                   {key}

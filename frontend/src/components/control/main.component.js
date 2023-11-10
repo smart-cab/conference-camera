@@ -16,6 +16,7 @@ class Main extends Component {
       error: null,
       connecting: false,
       devices: {},
+      selectedDevice: null
     }
 
     console.log(window.location.hostname)
@@ -61,6 +62,9 @@ class Main extends Component {
         this.setState({ devices: devices })
 
         // список девайсов камеры
+      } else if (response.startsWith("selected-device:")) {
+        let device = response.replace("selected-device:", "")
+        this.setState({ selectedDevice: device })
       }
     };
 
@@ -96,7 +100,7 @@ class Main extends Component {
 
     // Даем доступ к админке
     return (
-      <Control devices={this.state.devices} deviceSelect={this.handleDeviceChange} />
+      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} />
     );
   }
 }

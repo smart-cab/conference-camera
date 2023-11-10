@@ -105,14 +105,24 @@ func WebSocket(c *gin.Context) {
 					conn.WriteMessage(websocket.TextMessage, []byte("connected"))
 					hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
 					devices, _ := ptz.GetDevices()
-					log.Debugf("devices list: %s", strings.Join(devices, " | "))
+					devices[0], devices[1] = devices[1], devices[0]
+					selectedCamera := ""
 					conn.WriteMessage(websocket.TextMessage, []byte("devices:"+strings.Join(devices, "|")))
+					if ptz.Camera != nil {
+						selectedCamera = ptz.Camera.Name()
+					} else {
+						selectedCamera = ""
+					}
+					conn.WriteMessage(websocket.TextMessage, []byte("selected-device:"+selectedCamera))
+					log.Debugf("devices list: %s --- selected device: %s", strings.Join(devices, " | "), selectedCamera)
 				}
 			case "device":
 				// Ставим новую камеру
 				log.Infof("user %s set new camera %s", conn.LocalAddr(), data[2])
 				// ptz.Close()
-				ptz.Init(data[2])
+				if err := ptz.Init(data[2]); err != nil {
+					log.Errorf("\n\n\n------------------------\nuser %s error set new camera: %s\n------------------------\n\n\n", conn.LocalAddr(), err.Error())
+				}
 			}
 		}
 	}
