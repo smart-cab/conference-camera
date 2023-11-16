@@ -2,7 +2,6 @@ package ptz
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/vladimirvivien/go4vl/device"
@@ -15,11 +14,14 @@ var (
 	Cancel context.CancelFunc
 )
 
+const CTRL_HORIZONTAL uint32 = 0x009a0904
+const CTRL_VERTICAL uint32 = 0x009a0905
+
 func Init(path string) error {
 	var err error
 
 	if Camera != nil {
-		Camera.Close()
+		// Camera.Close()
 		Cancel()
 	}
 
@@ -50,10 +52,11 @@ func Close() error {
 	return Camera.Close()
 }
 
-func SendCmd(cmd string) {
+func SendCmd(cmd uint32, value int32) {
 	// TODO
-
-	fmt.Printf("Send command to PTZ camera: %s", cmd)
+	if err := Camera.SetControlValue(cmd, value); err != nil {
+		log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
+	}
 }
 
 func GetActiveDevices() []*device.Device {

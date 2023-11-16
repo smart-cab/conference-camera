@@ -83,8 +83,9 @@ func WebSocket(c *gin.Context) {
 		} else if data[0] == "user" {
 			if Client != nil && Client != conn {
 				// Если у нас уже есть авторизованный клиент, то никому не даем доступ
-				conn.WriteMessage(websocket.TextMessage, []byte("already"))
-				return
+				// conn.WriteMessage(websocket.TextMessage, []byte("already"))
+				Client = conn
+				// return
 			}
 
 			// USER ACTIONS
@@ -123,6 +124,28 @@ func WebSocket(c *gin.Context) {
 				if err := ptz.Init(data[2]); err != nil {
 					log.Errorf("\n\n\n------------------------\nuser %s error set new camera: %s\n------------------------\n\n\n", conn.LocalAddr(), err.Error())
 				}
+			case "move":
+				// Движение PTZ камеры
+				log.Infof("user %s move camera to %s", conn.LocalAddr(), data[2])
+				var cmd uint32
+				var value int32
+
+				switch data[2] {
+				case "left":
+					cmd = ptz.CTRL_HORIZONTAL
+					value = -300
+				case "right":
+					cmd = ptz.CTRL_HORIZONTAL
+					value = 300
+				case "top":
+					cmd = ptz.CTRL_VERTICAL
+					value = 200
+				case "bottom":
+					cmd = ptz.CTRL_VERTICAL
+					value = -200
+				}
+
+				ptz.SendCmd(cmd, value)
 			}
 		}
 	}
