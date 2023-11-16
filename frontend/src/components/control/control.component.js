@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
 
   return (
@@ -18,15 +18,15 @@ export default function Control({ devices, selectedDevice, deviceSelect }) {
             <hr></hr>
             <div className="joystick-container">
               <div>
-                <button className="joystick-button">↑</button>
+                <button className="joystick-button" onClick={() => moveCamera("top")}>↑</button>
               </div>
               <div>
-                <button className="joystick-button">←</button>
-                <button className="joystick-button">X</button>
-                <button className="joystick-button">→</button>
+                <button className="joystick-button" onClick={() => moveCamera("left")}>←</button>
+                <button className="joystick-button" onClick={() => moveCamera("center")}>X</button>
+                <button className="joystick-button" onClick={() => moveCamera("right")}>→</button>
               </div>
               <div>
-                <button className="joystick-button">↓</button>
+                <button className="joystick-button" onClick={() => moveCamera("bottom")}>↓</button>
               </div>
             </div>
             <hr></hr>

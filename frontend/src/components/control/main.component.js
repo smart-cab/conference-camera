@@ -64,6 +64,7 @@ class Main extends Component {
         // список девайсов камеры
       } else if (response.startsWith("selected-device:")) {
         let device = response.replace("selected-device:", "")
+        console.log("selected device:", device)
         this.setState({ selectedDevice: device })
       }
     };
@@ -80,6 +81,12 @@ class Main extends Component {
   handleDeviceChange = (event) => {
     window.location.reload()
     this.socket.send("user:device:" + event.target.value);
+  }
+
+  moveCamera = (action) => {
+    // alert("MOVE")
+    console.log("move ptz:", action)
+    this.socket.send("user:move:" + action)
   }
 
 
@@ -100,7 +107,7 @@ class Main extends Component {
 
     // Даем доступ к админке
     return (
-      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} />
+      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} />
     );
   }
 }
