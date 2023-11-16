@@ -22,7 +22,7 @@
     "validator": "^13.7.0"
   },
   "scripts": {
-    "start": "HTTPS=true SSL_CRT_FILE='./cert/server.cert' SSL_KEY_FILE='./cert/server.key' react-scripts start",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
