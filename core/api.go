@@ -1,25 +1,45 @@
 package core
 
 import (
-	"conferencecam/types"
+	"conferencecam/ptz"
 	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
+	easy "github.com/t-tomalak/logrus-easy-formatter"
 )
 
 type Api struct {
 	App *gin.Engine
+	Log *logrus.Logger
 }
 
 // Initializes gorm, gin, logrus and run http server
 func Run() {
 	api := Api{}
 
+	// Init logrus
+	api.Log = &logrus.Logger{
+		Out:   os.Stdout,
+		Level: logrus.DebugLevel,
+		Formatter: &easy.Formatter{
+			TimestampFormat: "2006-01-02 15:04:05",
+			LogFormat:       "[%lvl%]: %time% - %msg%\n",
+		},
+	}
+
 	// Init .env config
 	if err := godotenv.Load(); err != nil {
-		types.Logger.Fatal("failed load env config")
+		api.Log.Fatal("failed load env config")
+	}
+
+	devices := ptz.GetActiveDevices()
+	if len(devices) > 0 {
+		if err := ptz.Init(devices[0].Name()); err != nil {
+			api.Log.Fatalf("failed start camera: %s", err.Error())
+		}
 	}
 
 	// Init gin engine
@@ -27,7 +47,7 @@ func Run() {
 	api.App = gin.Default()
 	api.Routes()
 
-	types.Logger.Println("Server started!")
+	api.Log.Println("Server started!")
 	// Run http server
 	api.App.Run(fmt.Sprintf(
 		"%s:%s",

@@ -11,19 +11,19 @@ func ErrorHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Next()
 
-		errors := []interface{}{}
-
 		for _, e := range c.Errors {
 			if apiErr, ok := e.Err.(*types.ApiError); ok {
-				errors = append(errors, apiErr.Msg)
+				c.JSON(apiErr.Code, types.RESPONSE{
+					Success: false,
+					Error:   apiErr.Msg,
+				})
 			} else {
-				errors = append(errors, "internal error")
+				c.JSON(http.StatusInternalServerError, types.RESPONSE{
+					Success: false,
+					Error:   "system error",
+				})
 			}
 		}
 
-		c.JSON(http.StatusInternalServerError, types.RESPONSE{
-			Success: false,
-			Error:   errors,
-		})
 	}
 }

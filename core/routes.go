@@ -14,7 +14,8 @@ func (api *Api) Routes() {
 
 	{
 		r.GET("/ws", handlers.WebSocket)
-		r.GET("/video", handlers.ServeVideoStream)
+		r.GET("/ping", handlers.Ping)
+		r.Use(middlewares.Authorized).GET("/video", handlers.ServeVideoStream)
 		r.GET("/hub", handlers.Validate)
 	}
 }

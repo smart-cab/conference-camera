@@ -8,19 +8,56 @@ import (
 	"github.com/vladimirvivien/go4vl/v4l2"
 )
 
-type Camera struct {
-	Device *device.Device
+var (
+	Camera *device.Device
 	Frames <-chan []byte
-	Status bool
-	stop   context.CancelFunc
-}
-
-var PTZ *Camera = &Camera{
-	nil, nil, false, nil,
-}
+	Cancel context.CancelFunc
+)
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
 const CTRL_VERTICAL uint32 = 0x009a0905
+
+func Init(path string) error {
+	var err error
+
+	if Camera != nil {
+		// Camera.Close()
+		Cancel()
+	}
+
+	Camera, err = device.Open(
+		path,
+		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: 640, Height: 330}),
+		device.WithFPS(60),
+	)
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithCancel(context.TODO())
+	Cancel = cancel
+
+	if err := Camera.Start(ctx); err != nil {
+		log.Fatalf("stream capture: %s", err)
+	}
+
+	Frames = Camera.GetOutput()
+	return nil
+}
+
+func Close() error {
+	if Camera == nil {
+		return nil
+	}
+	return Camera.Close()
+}
+
+func SendCmd(cmd uint32, value int32) {
+	// TODO
+	if err := Camera.SetControlValue(cmd, value); err != nil {
+		log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
+	}
+}
 
 func GetActiveDevices() []*device.Device {
 	var result []*device.Device
@@ -39,38 +76,12 @@ func GetActiveDevices() []*device.Device {
 	return result
 }
 
-func Init(path string) (*Camera, error) {
-	device, err := device.Open(
-		path,
-		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: 640, Height: 330}),
-		device.WithFPS(60),
-	)
-	if err != nil {
-		return nil, err
+func GetDevices() ([]string, error) {
+	var result []string
+
+	for _, d := range GetActiveDevices() {
+		result = append(result, d.Name()+":"+d.Capability().Card)
 	}
 
-	ctx, cancel := context.WithCancel(context.TODO())
-
-	if err := device.Start(ctx); err != nil {
-		log.Fatalf("stream capture: %s", err)
-	}
-
-	return &Camera{
-		Device: device,
-		Frames: device.GetOutput(),
-		Status: true,
-		stop:   cancel,
-	}, nil
-}
-
-func (c *Camera) Close() error {
-	return c.Device.Close()
-}
-
-func (c *Camera) Control(cmd uint32, value int32) error {
-	if err := c.Device.SetControlValue(cmd, value); err != nil {
-		return err
-	}
-
-	return nil
+	return result, nil
 }
