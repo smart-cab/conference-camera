@@ -106,7 +106,6 @@ func WebSocket(c *gin.Context) {
 					conn.WriteMessage(websocket.TextMessage, []byte("connected"))
 					hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
 					devices, _ := ptz.GetDevices()
-					devices[0], devices[1] = devices[1], devices[0]
 					selectedCamera := ""
 					conn.WriteMessage(websocket.TextMessage, []byte("devices:"+strings.Join(devices, "|")))
 					if ptz.Camera != nil {

@@ -20,9 +20,13 @@ const CTRL_VERTICAL uint32 = 0x009a0905
 func Init(path string) error {
 	var err error
 
+	if Camera != nil && Camera.Name() == path {
+		return nil
+	}
+
 	if Camera != nil {
-		// Camera.Close()
 		Cancel()
+		Camera.Close()
 	}
 
 	Camera, err = device.Open(
@@ -34,7 +38,7 @@ func Init(path string) error {
 		return err
 	}
 
-	ctx, cancel := context.WithCancel(context.TODO())
+	ctx, cancel := context.WithCancel(context.Background())
 	Cancel = cancel
 
 	if err := Camera.Start(ctx); err != nil {

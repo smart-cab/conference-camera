@@ -13,6 +13,12 @@ import (
 func ServeVideoStream(c *gin.Context) {
 	log := c.MustGet("log").(*logrus.Logger)
 
+	for {
+		if ptz.Camera != nil {
+			break
+		}
+	}
+
 	mimeWriter := multipart.NewWriter(c.Writer)
 	c.Writer.Header().Set("Content-Type", fmt.Sprintf("multipart/x-mixed-replace; boundary=%s", mimeWriter.Boundary()))
 	partHeader := make(textproto.MIMEHeader)
