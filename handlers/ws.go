@@ -50,7 +50,7 @@ func WebSocket(c *gin.Context) {
 					hub.WriteMessage(websocket.TextMessage, []byte("disconnected"))
 				}
 			}
-			return
+			continue
 		}
 
 		data := strings.Split(string(msg), ":")
@@ -61,7 +61,7 @@ func WebSocket(c *gin.Context) {
 			if hub != nil && hub != conn {
 				log.Errorf("user %s try start already hub", conn.LocalAddr())
 				conn.WriteMessage(websocket.TextMessage, []byte("error:already"))
-				return
+				continue
 			}
 			hub = conn
 
@@ -129,6 +129,11 @@ func WebSocket(c *gin.Context) {
 				var cmd uint32
 				var value int32
 
+				if data[2] == "center" {
+					ptz.CenterCamera()
+					continue
+				}
+
 				switch data[2] {
 				case "left":
 					cmd = ptz.CTRL_HORIZONTAL
@@ -138,10 +143,10 @@ func WebSocket(c *gin.Context) {
 					value = 300
 				case "top":
 					cmd = ptz.CTRL_VERTICAL
-					value = 200
+					value = -200
 				case "bottom":
 					cmd = ptz.CTRL_VERTICAL
-					value = -200
+					value = 200
 				}
 
 				ptz.SendCmd(cmd, value)

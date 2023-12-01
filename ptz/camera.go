@@ -3,15 +3,18 @@ package ptz
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/vladimirvivien/go4vl/device"
 	"github.com/vladimirvivien/go4vl/v4l2"
 )
 
 var (
-	Camera *device.Device
-	Frames <-chan []byte
-	Cancel context.CancelFunc
+	Camera   *device.Device
+	Frames   <-chan []byte
+	Cancel   context.CancelFunc
+	CurrentX int32
+	CurrentY int32
 )
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
@@ -46,6 +49,12 @@ func Init(path string) error {
 	}
 
 	Frames = Camera.GetOutput()
+
+	// Fix move camera
+	if err := SendCmd(CTRL_HORIZONTAL, 0); err == nil {
+		SendCmd(CTRL_VERTICAL, 0)
+	}
+
 	return nil
 }
 
@@ -56,11 +65,32 @@ func Close() error {
 	return Camera.Close()
 }
 
-func SendCmd(cmd uint32, value int32) {
+func SendCmd(cmd uint32, value int32) error {
 	// TODO
 	if err := Camera.SetControlValue(cmd, value); err != nil {
 		log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
+		return err
 	}
+
+	if value != 0 {
+		log.Printf("Reset horizontal pos to zero")
+		SendCmd(CTRL_HORIZONTAL, 0)
+		SendCmd(CTRL_VERTICAL, 0)
+	}
+
+	if cmd == CTRL_HORIZONTAL {
+		CurrentX += value
+	} else if cmd == CTRL_VERTICAL {
+		CurrentY += value
+	}
+
+	return nil
+}
+
+func CenterCamera() {
+	SendCmd(CTRL_HORIZONTAL, -CurrentX)
+	time.Sleep(time.Second * 1)
+	SendCmd(CTRL_VERTICAL, -CurrentY)
 }
 
 func GetActiveDevices() []*device.Device {
