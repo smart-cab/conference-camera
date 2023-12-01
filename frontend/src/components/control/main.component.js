@@ -89,6 +89,11 @@ class Main extends Component {
     this.socket.send("user:move:" + action)
   }
 
+  zoomCamera = (event) => {
+    console.log("zoom ptz:", event.target.value)
+    this.socket.send("user:zoom:" + event.target.value)
+  }
+
 
   render() {
     if (!this.state.connecting) {
@@ -107,7 +112,7 @@ class Main extends Component {
 
     // Даем доступ к админке
     return (
-      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} />
+      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} zoomCamera={this.zoomCamera} />
     );
   }
 }

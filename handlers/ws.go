@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -150,6 +151,14 @@ func WebSocket(c *gin.Context) {
 				}
 
 				ptz.SendCmd(cmd, value)
+			case "zoom":
+				log.Infof("user %s zoom camera to %s", conn.LocalAddr(), data[2])
+
+				value, err := strconv.Atoi(data[2])
+				if err != nil {
+					log.Fatalf("user %s send wrong value to zoom: %s", conn.LocalAddr(), data[2])
+				}
+				ptz.SendCmd(ptz.CTRL_ZOOM, int32(value)*100)
 			}
 		}
 	}

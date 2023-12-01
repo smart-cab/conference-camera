@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect, moveCamera }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
 
   return (
@@ -29,6 +29,8 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
                 <button className="joystick-button" onClick={() => moveCamera("bottom")}>↓</button>
               </div>
             </div>
+            <label for="zoom">Приближение:</label>
+            <input type="range" id="zoom" name="zoom" min="1" max="10" className="zoomRange" onChange={(event) => zoomCamera(event)} />
             <hr></hr>
             <h6>Настройки камеры</h6>
             <label className="pr-2">Камера:</label>

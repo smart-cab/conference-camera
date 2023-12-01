@@ -19,6 +19,7 @@ var (
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
 const CTRL_VERTICAL uint32 = 0x009a0905
+const CTRL_ZOOM uint32 = 0x009a090d
 
 func Init(path string) error {
 	var err error
