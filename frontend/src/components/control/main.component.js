@@ -16,7 +16,8 @@ class Main extends Component {
       error: null,
       connecting: false,
       devices: {},
-      selectedDevice: null
+      selectedDevice: null,
+      step: 300,
     }
 
     console.log(window.location.hostname)
@@ -85,13 +86,17 @@ class Main extends Component {
 
   moveCamera = (action) => {
     // alert("MOVE")
-    console.log("move ptz:", action)
-    this.socket.send("user:move:" + action)
+    console.log("move ptz:", action, ". Step:", this.state.step)
+    this.socket.send("user:move:" + action + ":" + this.state.step)
   }
 
   zoomCamera = (event) => {
     console.log("zoom ptz:", event.target.value)
     this.socket.send("user:zoom:" + event.target.value)
+  }
+
+  stepSet = (event) => {
+    this.setState({step : event.target.value})
   }
 
 
@@ -112,7 +117,7 @@ class Main extends Component {
 
     // Даем доступ к админке
     return (
-      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} zoomCamera={this.zoomCamera} />
+      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} zoomCamera={this.zoomCamera} stepSet={this.stepSet} />
     );
   }
 }

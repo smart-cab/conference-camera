@@ -128,29 +128,31 @@ func WebSocket(c *gin.Context) {
 				// Движение PTZ камеры
 				log.Infof("user %s move camera to %s", conn.LocalAddr(), data[2])
 				var cmd uint32
-				var value int32
 
 				if data[2] == "center" {
 					ptz.CenterCamera()
 					continue
 				}
 
+				value, err := strconv.Atoi(data[3])
+				if err != nil {
+					continue
+				}
+
 				switch data[2] {
 				case "left":
 					cmd = ptz.CTRL_HORIZONTAL
-					value = -300
+					value *= -1
 				case "right":
 					cmd = ptz.CTRL_HORIZONTAL
-					value = 300
 				case "top":
 					cmd = ptz.CTRL_VERTICAL
-					value = -200
+					value *= -1
 				case "bottom":
 					cmd = ptz.CTRL_VERTICAL
-					value = 200
 				}
 
-				ptz.SendCmd(cmd, value)
+				ptz.SendCmd(cmd, int32(value))
 			case "zoom":
 				log.Infof("user %s zoom camera to %s", conn.LocalAddr(), data[2])
 
