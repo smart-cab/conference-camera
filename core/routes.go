@@ -16,6 +16,7 @@ func (api *Api) Routes() {
 		r.GET("/ws", handlers.WebSocket)
 		r.GET("/ping", handlers.Ping)
 		r.GET("/video", handlers.ServeVideoStream)
+		r.GET("/studio", handlers.ServeStudioStream)
 		r.GET("/hub", handlers.Validate)
 	}
 }

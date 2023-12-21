@@ -3,6 +3,7 @@ import styles from "./control.css";
 
 export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
+  const studioURL = `http://${window.location.hostname}:8888/api/v1/studio`;
 
   return (
     <div className="container center-container">
@@ -10,6 +11,7 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
         <div className="row">
           <div className="col-md-7">
             <img src={videoURL} alt="Изображение" className="img-fluid video" />
+            <img src={studioURL} alt="Изображение" className="img-fluid video" />
           </div>
           <div className="col-md-5">
             <div className="text-center">
