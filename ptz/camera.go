@@ -28,7 +28,11 @@ const CTRL_HORIZONTAL uint32 = 0x009a0904
 const CTRL_VERTICAL uint32 = 0x009a0905
 const CTRL_ZOOM uint32 = 0x009a090d
 
-var Camera = ICamera{}
+var Camera = ICamera{
+	FPS:    60,
+	Width:  1280,
+	Height: 720,
+}
 
 func (c *ICamera) Init(path string) error {
 	var err error
@@ -37,8 +41,9 @@ func (c *ICamera) Init(path string) error {
 		if c.Device.Name() != path {
 			c.Cancel()
 			c.Device.Close()
+		} else {
+			return nil
 		}
-		return nil
 	}
 
 	c.Device, err = device.Open(
