@@ -38,6 +38,10 @@ func WebSocket(c *gin.Context) {
 	}
 
 	for {
+		if conn == nil {
+			log.Errorln("websocket disconnected")
+			return
+		}
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			if conn == hub {

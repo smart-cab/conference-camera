@@ -11,7 +11,7 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
         <div className="row">
           <div className="col-md-7">
             <img src={videoURL} alt="Изображение" className="img-fluid video" />
-            <img src={studioURL} alt="Изображение" className="img-fluid video" />
+            {/* <img src={studioURL} alt="Изображение" className="img-fluid video" /> */}
           </div>
           <div className="col-md-5">
             <div className="text-center">
@@ -45,7 +45,7 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
             </select>
             <br></br>
             <label className="pr-2">Шаг:</label>
-            <input type="number" min="10" max="500" onChange={(event) => stepSet(event)}></input>
+            <input type="number" min="10" max="500" onChange={(event) => stepSet(event)} defaultValue={"10"}></input>
             <hr></hr>
             <span className="text-muted text-left">
               DEBUG INFO:
