@@ -37,7 +37,7 @@ func Run() {
 
 	devices := ptz.GetActiveDevices()
 	if len(devices) > 0 {
-		if err := ptz.Init(devices[0].Name()); err != nil {
+		if err := ptz.Camera.Init(devices[0].Name()); err != nil {
 			api.Log.Fatalf("failed start camera: %s", err.Error())
 		}
 	}

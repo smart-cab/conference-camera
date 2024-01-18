@@ -9,89 +9,99 @@ import (
 	"github.com/vladimirvivien/go4vl/v4l2"
 )
 
-var (
-	Camera   *device.Device
-	Frames   <-chan []byte
-	Cancel   context.CancelFunc
+type ICamera struct {
+	FPS    uint32
+	Width  uint32
+	Height uint32
+
+	Device  *device.Device
+	Context context.Context
+	Cancel  context.CancelFunc
+
+	Frames <-chan []byte
+
 	CurrentX int32
 	CurrentY int32
-)
+}
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
 const CTRL_VERTICAL uint32 = 0x009a0905
 const CTRL_ZOOM uint32 = 0x009a090d
 
-func Init(path string) error {
+var Camera = ICamera{}
+
+func (c *ICamera) Init(path string) error {
 	var err error
 
-	if Camera != nil && Camera.Name() == path {
+	if c.Device != nil {
+		if c.Device.Name() != path {
+			c.Cancel()
+			c.Device.Close()
+		}
 		return nil
 	}
 
-	if Camera != nil {
-		Cancel()
-		Camera.Close()
-	}
-
-	Camera, err = device.Open(
+	c.Device, err = device.Open(
 		path,
-		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: 640, Height: 330}),
-		device.WithFPS(60),
+		device.WithPixFormat(v4l2.PixFormat{PixelFormat: v4l2.PixelFmtMJPEG, Width: c.Width, Height: c.Height}),
+		device.WithFPS(c.FPS),
 	)
 	if err != nil {
 		return err
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	Cancel = cancel
+	c.Context, c.Cancel = context.WithCancel(context.Background())
 
-	if err := Camera.Start(ctx); err != nil {
+	if err := c.Device.Start(c.Context); err != nil {
 		log.Fatalf("stream capture: %s", err)
 	}
 
-	Frames = Camera.GetOutput()
+	c.Frames = c.Device.GetOutput()
 
 	// Fix move camera
-	if err := SendCmd(CTRL_HORIZONTAL, 0); err == nil {
-		SendCmd(CTRL_VERTICAL, 0)
+	if err := c.SendCmd(CTRL_HORIZONTAL, 0); err == nil {
+		c.SendCmd(CTRL_VERTICAL, 0)
 	}
 
 	return nil
 }
 
-func Close() error {
-	if Camera == nil {
+func (c *ICamera) Close() error {
+	if c.Device == nil {
 		return nil
 	}
-	return Camera.Close()
+
+	c.Cancel()
+
+	return c.Device.Close()
 }
 
-func SendCmd(cmd uint32, value int32) error {
+func (c *ICamera) SendCmd(cmd uint32, value int32) error {
 	// TODO
-	if err := Camera.SetControlValue(cmd, value); err != nil {
+	if err := c.Device.SetControlValue(cmd, value); err != nil {
 		log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
 		return err
 	}
 
 	if value != 0 {
 		log.Printf("Reset horizontal pos to zero")
-		SendCmd(CTRL_HORIZONTAL, 0)
-		SendCmd(CTRL_VERTICAL, 0)
+		c.SendCmd(CTRL_HORIZONTAL, 0)
+		c.SendCmd(CTRL_VERTICAL, 0)
 	}
 
 	if cmd == CTRL_HORIZONTAL {
-		CurrentX += value
+		c.CurrentX += value
 	} else if cmd == CTRL_VERTICAL {
-		CurrentY += value
+		c.CurrentY += value
 	}
 
 	return nil
 }
 
-func CenterCamera() {
-	SendCmd(CTRL_HORIZONTAL, -CurrentX)
-	time.Sleep(time.Second * 1)
-	SendCmd(CTRL_VERTICAL, -CurrentY)
+func (c *ICamera) CenterCamera() {
+	c.SendCmd(CTRL_HORIZONTAL, -c.CurrentX)
+	time.Sleep(time.Second) // small fix
+	c.SendCmd(CTRL_VERTICAL, -c.CurrentY)
 }
 
 func GetActiveDevices() []*device.Device {

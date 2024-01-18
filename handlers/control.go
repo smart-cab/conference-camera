@@ -14,7 +14,7 @@ func ServeVideoStream(c *gin.Context) {
 	log := c.MustGet("log").(*logrus.Logger)
 
 	for {
-		if ptz.Camera != nil {
+		if ptz.Camera.Device != nil {
 			break
 		}
 	}
@@ -25,7 +25,7 @@ func ServeVideoStream(c *gin.Context) {
 	partHeader.Add("Content-Type", "image/jpeg")
 
 	var frame []byte
-	for frame = range ptz.Frames {
+	for frame = range ptz.Camera.Frames {
 		partWriter, err := mimeWriter.CreatePart(partHeader)
 		if err != nil {
 			log.Printf("failed to create multi-part writer: %s", err)

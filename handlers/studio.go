@@ -18,7 +18,7 @@ func ServeStudioStream(c *gin.Context) {
 	log := c.MustGet("log").(*logrus.Logger)
 
 	for {
-		if ptz.Camera != nil {
+		if ptz.Camera.Device != nil {
 			break
 		}
 	}
@@ -29,7 +29,7 @@ func ServeStudioStream(c *gin.Context) {
 	partHeader.Add("Content-Type", "image/jpeg")
 
 	var frame []byte
-	for frame = range ptz.Frames {
+	for frame = range ptz.Camera.Frames {
 		captureScreenImg := captureScreen()
 		image := studio.MergeImages(frame, captureScreenImg)
 

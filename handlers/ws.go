@@ -55,7 +55,8 @@ func WebSocket(c *gin.Context) {
 					hub.WriteMessage(websocket.TextMessage, []byte("disconnected"))
 				}
 			}
-			continue
+
+			break
 		}
 
 		data := strings.Split(string(msg), ":")
@@ -88,9 +89,9 @@ func WebSocket(c *gin.Context) {
 		} else if data[0] == "user" {
 			if Client != nil && Client != conn {
 				// Если у нас уже есть авторизованный клиент, то никому не даем доступ
-				// conn.WriteMessage(websocket.TextMessage, []byte("already"))
-				Client = conn
-				// return
+				// Client = conn
+				conn.WriteMessage(websocket.TextMessage, []byte("already"))
+				return
 			}
 
 			// USER ACTIONS
@@ -113,8 +114,8 @@ func WebSocket(c *gin.Context) {
 					devices, _ := ptz.GetDevices()
 					selectedCamera := ""
 					conn.WriteMessage(websocket.TextMessage, []byte("devices:"+strings.Join(devices, "|")))
-					if ptz.Camera != nil {
-						selectedCamera = ptz.Camera.Name()
+					if ptz.Camera.Device != nil {
+						selectedCamera = ptz.Camera.Device.Name()
 					} else {
 						selectedCamera = ""
 					}
@@ -124,8 +125,8 @@ func WebSocket(c *gin.Context) {
 			case "device":
 				// Ставим новую камеру
 				log.Infof("user %s set new camera %s", conn.LocalAddr(), data[2])
-				// ptz.Close()
-				if err := ptz.Init(data[2]); err != nil {
+
+				if err := ptz.Camera.Init(data[2]); err != nil {
 					log.Errorf("\n\n\n------------------------\nuser %s error set new camera: %s\n------------------------\n\n\n", conn.LocalAddr(), err.Error())
 				}
 			case "move":
@@ -134,7 +135,7 @@ func WebSocket(c *gin.Context) {
 				var cmd uint32
 
 				if data[2] == "center" {
-					ptz.CenterCamera()
+					ptz.Camera.CenterCamera()
 					continue
 				}
 
@@ -156,7 +157,7 @@ func WebSocket(c *gin.Context) {
 					cmd = ptz.CTRL_VERTICAL
 				}
 
-				ptz.SendCmd(cmd, int32(value))
+				ptz.Camera.SendCmd(cmd, int32(value))
 			case "zoom":
 				log.Infof("user %s zoom camera to %s", conn.LocalAddr(), data[2])
 
@@ -164,14 +165,14 @@ func WebSocket(c *gin.Context) {
 				if err != nil {
 					log.Fatalf("user %s send wrong value to zoom: %s", conn.LocalAddr(), data[2])
 				}
-				ptz.SendCmd(ptz.CTRL_ZOOM, int32(value)*100)
+				ptz.Camera.SendCmd(ptz.CTRL_ZOOM, int32(value)*100)
 			}
 		}
 	}
 }
 
 func randToken(n int) string {
-	rand.Seed(time.Now().UnixNano()) // fix repeat tokens
+	rand.NewSource(time.Now().UnixNano()) // fix repeat tokens
 
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 	b := make([]rune, n)
