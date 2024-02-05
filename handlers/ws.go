@@ -166,6 +166,13 @@ func WebSocket(c *gin.Context) {
 					log.Fatalf("user %s send wrong value to zoom: %s", conn.LocalAddr(), data[2])
 				}
 				ptz.Camera.SendCmd(ptz.CTRL_ZOOM, int32(value)*100)
+			case "face":
+				log.Infof("user %s set face detector to: %s", conn.LocalAddr(), data[2])
+				if data[2] == "true" {
+					ptz.Camera.FaceEnabled = true
+				} else {
+					ptz.Camera.FaceEnabled = false
+				}
 			}
 		}
 	}

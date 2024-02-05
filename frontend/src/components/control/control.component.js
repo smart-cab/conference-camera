@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet, faceDetect }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
   const studioURL = `http://${window.location.hostname}:8888/api/v1/studio`;
 
@@ -46,6 +46,9 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
             <br></br>
             <label className="pr-2">Шаг:</label>
             <input type="number" min="10" max="500" onChange={(event) => stepSet(event)} defaultValue={"10"}></input>
+            <br></br>
+            <label className="pr-2">Отслеживание лица:</label>
+            <input type="checkbox" onChange={(event) => faceDetect(event)}></input>
             <hr></hr>
             <span className="text-muted text-left">
               DEBUG INFO:

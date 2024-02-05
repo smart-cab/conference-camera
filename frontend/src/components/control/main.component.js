@@ -99,6 +99,10 @@ class Main extends Component {
     this.setState({step : event.target.value})
   }
 
+  faceDetect = (event) => {
+    this.socket.send("user:face:" + event.target.checked)
+  }
+
 
   render() {
     if (!this.state.connecting) {
@@ -117,7 +121,15 @@ class Main extends Component {
 
     // Даем доступ к админке
     return (
-      <Control devices={this.state.devices} selectedDevice={this.state.selectedDevice} deviceSelect={this.handleDeviceChange} moveCamera={this.moveCamera} zoomCamera={this.zoomCamera} stepSet={this.stepSet} />
+      <Control 
+        devices={this.state.devices} 
+        selectedDevice={this.state.selectedDevice} 
+        deviceSelect={this.handleDeviceChange} 
+        moveCamera={this.moveCamera} 
+        zoomCamera={this.zoomCamera} 
+        stepSet={this.stepSet} 
+        faceDetect={this.faceDetect}
+      />
     );
   }
 }
