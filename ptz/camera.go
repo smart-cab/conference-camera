@@ -1,10 +1,18 @@
 package ptz
 
 import (
+	"bytes"
 	"context"
+	"fmt"
+	"image"
+	"image/color"
+	"io"
 	"log"
+	"os"
 	"time"
 
+	pigo "github.com/esimov/pigo/core"
+	"github.com/fogleman/gg"
 	"github.com/vladimirvivien/go4vl/device"
 	"github.com/vladimirvivien/go4vl/v4l2"
 )
@@ -22,6 +30,9 @@ type ICamera struct {
 
 	CurrentX int32
 	CurrentY int32
+
+	FaceEnabled bool
+	FaceFinder  *pigo.Pigo
 }
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
@@ -56,6 +67,9 @@ func (c *ICamera) Init(path string) error {
 	}
 
 	c.Context, c.Cancel = context.WithCancel(context.Background())
+	if err := c.InitFaceDetect(); err != nil {
+		return err
+	}
 
 	if err := c.Device.Start(c.Context); err != nil {
 		log.Fatalf("stream capture: %s", err)
@@ -107,6 +121,70 @@ func (c *ICamera) CenterCamera() {
 	c.SendCmd(CTRL_HORIZONTAL, -c.CurrentX)
 	time.Sleep(time.Second) // small fix
 	c.SendCmd(CTRL_VERTICAL, -c.CurrentY)
+}
+
+func (c *ICamera) InitFaceDetect() error {
+	model, err := os.ReadFile("./ptz/facefinder.model")
+	if err != nil {
+		return fmt.Errorf("failed to load face finder model: %s", err)
+	}
+	p := pigo.NewPigo()
+	c.FaceFinder, err = p.Unpack(model)
+	if err != nil {
+		c.FaceFinder = nil
+		return fmt.Errorf("failed to initialize face classifier: %s", err)
+	}
+	return nil
+}
+
+func (c *ICamera) RunFaceDetect(w io.Writer, frame []byte) error {
+	if !c.FaceEnabled {
+		return nil
+	}
+
+	img, _, err := image.Decode(bytes.NewReader(frame))
+	if err != nil {
+		return err
+	}
+
+	src := img.(*image.YCbCr)
+	bounds := img.Bounds()
+	params := pigo.CascadeParams{
+		MinSize:     100,
+		MaxSize:     600,
+		ShiftFactor: 0.15,
+		ScaleFactor: 1.1,
+		ImageParams: pigo.ImageParams{
+			Pixels: src.Y,
+			Rows:   bounds.Dy(),
+			Cols:   bounds.Dx(),
+			Dim:    bounds.Dx(),
+		},
+	}
+
+	dets := c.FaceFinder.RunCascade(params, 0.0)
+	dets = c.FaceFinder.ClusterDetections(dets, 0)
+
+	drawer := gg.NewContext(bounds.Max.X, bounds.Max.Y)
+	drawer.DrawImage(img, 0, 0)
+
+	for _, det := range dets {
+		if det.Q >= 5.0 {
+			drawer.DrawRectangle(
+				float64(det.Col-det.Scale/2),
+				float64(det.Row-det.Scale/2),
+				float64(det.Scale),
+				float64(det.Scale),
+			)
+
+			drawer.SetLineWidth(3.0)
+			drawer.SetStrokeStyle(gg.NewSolidPattern(color.RGBA{R: 255, G: 0, B: 0, A: 255}))
+			drawer.Stroke()
+		}
+	}
+
+	// return nil
+	return drawer.EncodePNG(w)
 }
 
 func GetActiveDevices() []*device.Device {
