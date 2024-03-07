@@ -1,4 +1,4 @@
-FROM node:21-alpine3.18
+FROM node:21-alpine3.18 as builder
 
 WORKDIR /app
 
@@ -12,6 +12,15 @@ RUN npm ci
 
 COPY . .
 
-EXPOSE 3000
+RUN npm run build
 
-CMD ["npm", "run", "start"]
+
+FROM joseluisq/static-web-server:2-alpine
+
+WORKDIR /app
+
+COPY --from=builder /app/build /app
+
+EXPOSE 8787
+
+CMD ["static-web-server", "-p", "8787", "--root", "/app"]

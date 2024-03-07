@@ -15,7 +15,7 @@ services:
     build:
       context: ./frontend
     ports:
-      - 3000:3000
+      - 8787:8787
     networks:
       - default
     stop_grace_period: 1s
