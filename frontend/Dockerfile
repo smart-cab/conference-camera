@@ -1,23 +1,17 @@
-FROM node:18.16.0-alpine
+FROM node:21-alpine3.17
 
-# Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
 
-# Копируем файлы зависимостей для клиентской части
-COPY package.json .
-COPY package-lock.json .
+COPY package.json package-lock.json .
 
-# Устанавливаем зависимости
-RUN npm install
+# Behaves like npm install, except that it installs packages according to
+# package-lock.json instead of package.json (making more stable and reproducible
+# builds, especially for production-releases). If it fails, run npm install on
+# your local machine before building within docker. Equivalent of yarn --frozen-lockfile
+RUN npm ci
 
-# Копируем исходный код клиентской части в контейнер
 COPY . .
 
-# Собираем приложение React
-# RUN npm run start
-
-# Экспортируем порт, если ваше React-приложение использует серверный рендеринг
 EXPOSE 3000
 
-# Запускаем приложение React
 CMD ["npm", "run", "start"]
