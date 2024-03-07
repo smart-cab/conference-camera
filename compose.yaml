@@ -2,7 +2,7 @@ version: "3"
 
 services:
   backend:
-    container_name: backend
+    container_name: confcam-backend
     build:
       context: .
     ports:
@@ -11,7 +11,7 @@ services:
       - default
 
   frontend:
-    container_name: frontend
+    container_name: confcam-frontend
     build:
       context: ./frontend
     ports:
@@ -23,3 +23,5 @@ services:
 networks:
   default:
     driver: bridge
+    name: smartcab
+    external: true
