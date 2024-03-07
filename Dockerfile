@@ -14,8 +14,6 @@ RUN go build -v -o /app/main main.go
 
 FROM alpine:3.18
 
-RUN apk upgrade --no-cache && apk add --no-cache libgcc gcc musl-dev bind-tools libffi libffi-dev
-
 WORKDIR /app
 
 COPY --from=builder /app/main /app/.env /app
