@@ -18,6 +18,7 @@ class Main extends Component {
       devices: {},
       selectedDevice: null,
       step: 300,
+      isPtz: false,
     }
 
     console.log(window.location.hostname)
@@ -65,8 +66,9 @@ class Main extends Component {
         // список девайсов камеры
       } else if (response.startsWith("selected-device:")) {
         let device = response.replace("selected-device:", "")
-        console.log("selected device:", device)
-        this.setState({ selectedDevice: device })
+        const [deviceName, isPtz] = device.split(':')
+        console.log("selected device:", deviceName, "ptz:", isPtz === "true")
+        this.setState({ selectedDevice: deviceName, isPtz: isPtz === "true" })
       }
     };
 
@@ -129,6 +131,7 @@ class Main extends Component {
         zoomCamera={this.zoomCamera} 
         stepSet={this.stepSet} 
         faceDetect={this.faceDetect}
+        isPtz={this.state.isPtz}
       />
     );
   }

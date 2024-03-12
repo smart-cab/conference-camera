@@ -1,9 +1,10 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet, faceDetect }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet, faceDetect, isPtz }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
   const studioURL = `http://${window.location.hostname}:8888/api/v1/studio`;
+  console.log("ptz status:", isPtz)
 
   return (
     <div className="container center-container">
@@ -18,22 +19,26 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
               <h3>1234 - Камера конференции</h3>
             </div>
             <hr></hr>
-            <div className="joystick-container">
-              <div>
-                <button className="joystick-button" onClick={() => moveCamera("top")}>↑</button>
+            { isPtz ?
+            <div>
+              <div className="joystick-container">
+                <div>
+                  <button className="joystick-button" onClick={() => moveCamera("top")}>↑</button>
+                </div>
+                <div>
+                  <button className="joystick-button" onClick={() => moveCamera("left")}>←</button>
+                  <button className="joystick-button" onClick={() => moveCamera("center")}>X</button>
+                  <button className="joystick-button" onClick={() => moveCamera("right")}>→</button>
+                </div>
+                <div>
+                  <button className="joystick-button" onClick={() => moveCamera("bottom")}>↓</button>
+                </div>
               </div>
-              <div>
-                <button className="joystick-button" onClick={() => moveCamera("left")}>←</button>
-                <button className="joystick-button" onClick={() => moveCamera("center")}>X</button>
-                <button className="joystick-button" onClick={() => moveCamera("right")}>→</button>
-              </div>
-              <div>
-                <button className="joystick-button" onClick={() => moveCamera("bottom")}>↓</button>
-              </div>
+              <label for="zoom">Приближение:</label>
+              <input type="range" id="zoom" name="zoom" min="1" max="10" className="zoomRange" value={1} onChange={(event) => zoomCamera(event)} />
+              <hr></hr>
             </div>
-            <label for="zoom">Приближение:</label>
-            <input type="range" id="zoom" name="zoom" min="1" max="10" className="zoomRange" onChange={(event) => zoomCamera(event)} />
-            <hr></hr>
+            : <span style={{color: "#ff0000"}}>Не PTZ камера</span>}
             <h6>Настройки камеры</h6>
             <label className="pr-2">Камера:</label>
             <select onChange={deviceSelect} value={selectedDevice}>

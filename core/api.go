@@ -50,9 +50,8 @@ func Run() {
 	api.Log.Println("Server started!")
 	// Run http server
 	api.App.Run(fmt.Sprintf(
-		"%s:%s",
+		"%s:8888",
 		os.Getenv("IP"),
-		os.Getenv("PORT"),
 	))
 
 }

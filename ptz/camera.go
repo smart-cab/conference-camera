@@ -33,6 +33,8 @@ type ICamera struct {
 
 	FaceEnabled bool
 	FaceFinder  *pigo.Pigo
+
+	IsPTZ bool
 }
 
 const CTRL_HORIZONTAL uint32 = 0x009a0904
@@ -76,9 +78,12 @@ func (c *ICamera) Init(path string) error {
 	}
 
 	c.Frames = c.Device.GetOutput()
+	c.IsPTZ = false
 
 	// Fix move camera
-	if err := c.SendCmd(CTRL_HORIZONTAL, 0); err == nil {
+	err = c.SendCmd(CTRL_HORIZONTAL, 0)
+	if err == nil {
+		c.IsPTZ = true
 		c.SendCmd(CTRL_VERTICAL, 0)
 	}
 
@@ -96,9 +101,8 @@ func (c *ICamera) Close() error {
 }
 
 func (c *ICamera) SendCmd(cmd uint32, value int32) error {
-	// TODO
 	if err := c.Device.SetControlValue(cmd, value); err != nil {
-		log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
+		// log.Printf("ERROR PTZ CAMERA COMMAND: %s", err.Error())
 		return err
 	}
 
