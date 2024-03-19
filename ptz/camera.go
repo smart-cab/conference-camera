@@ -7,6 +7,7 @@ import (
 	"image"
 	"io"
 	"log"
+	"math"
 	"os"
 	"time"
 
@@ -180,9 +181,35 @@ func (c *ICamera) RunFaceDetect(w io.Writer, frame []byte) error {
 			continue
 		}
 
+		centerX, centerY := 500, 300
 		x, y := person.Col-person.Scale/2, person.Row-person.Scale/2
-		x, y = x/10*10, y/10*10
-		log.Println(x, y)
+		x, y = x/100*100, y/100*100
+
+		moveX, moveY := float64(centerX-x)/100, float64(centerY-y)/100
+		if moveX < 0 {
+			for i := 0; i < int(math.Abs(moveX)); i++ {
+				c.SendCmd(CTRL_HORIZONTAL, 200)
+				time.Sleep(time.Millisecond * 100)
+			}
+		}
+		if moveX > 0 {
+			for i := 0; i < int(math.Abs(moveX)); i++ {
+				time.Sleep(time.Millisecond * 100)
+				c.SendCmd(CTRL_HORIZONTAL, -200)
+			}
+		}
+		if moveY < 0 {
+			for i := 0; i < int(math.Abs(moveY)); i++ {
+				c.SendCmd(CTRL_VERTICAL, 100)
+				time.Sleep(time.Millisecond * 100)
+			}
+		}
+		if moveY > 0 {
+			for i := 0; i < int(math.Abs(moveY)); i++ {
+				time.Sleep(time.Millisecond * 100)
+				c.SendCmd(CTRL_VERTICAL, -100)
+			}
+		}
 
 		break
 	}
