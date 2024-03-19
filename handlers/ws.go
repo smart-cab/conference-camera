@@ -90,8 +90,8 @@ func WebSocket(c *gin.Context) {
 			if Client != nil && Client != conn {
 				// Если у нас уже есть авторизованный клиент, то никому не даем доступ
 				// Client = conn
-				conn.WriteMessage(websocket.TextMessage, []byte("already"))
-				return
+				// conn.WriteMessage(websocket.TextMessage, []byte("already"))
+				// return
 			}
 
 			// USER ACTIONS
