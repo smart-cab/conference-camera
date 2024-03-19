@@ -35,7 +35,7 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
                 </div>
               </div>
               <label for="zoom">Приближение:</label>
-              <input type="range" id="zoom" name="zoom" min="1" max="10" className="zoomRange" value={1} onChange={(event) => zoomCamera(event)} />
+              <input type="range" id="zoom" name="zoom" min="1" max="10" className="zoomRange" defaultValue={0} onChange={(event) => zoomCamera(event)} />
               <hr></hr>
             </div>
             : <span style={{color: "#ff0000"}}>Не PTZ камера</span>}

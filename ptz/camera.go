@@ -5,14 +5,12 @@ import (
 	"context"
 	"fmt"
 	"image"
-	"image/color"
 	"io"
 	"log"
 	"os"
 	"time"
 
 	pigo "github.com/esimov/pigo/core"
-	"github.com/fogleman/gg"
 	"github.com/vladimirvivien/go4vl/device"
 	"github.com/vladimirvivien/go4vl/v4l2"
 )
@@ -107,7 +105,6 @@ func (c *ICamera) SendCmd(cmd uint32, value int32) error {
 	}
 
 	if value != 0 {
-		log.Printf("Reset horizontal pos to zero")
 		c.SendCmd(CTRL_HORIZONTAL, 0)
 		c.SendCmd(CTRL_VERTICAL, 0)
 	}
@@ -169,26 +166,33 @@ func (c *ICamera) RunFaceDetect(w io.Writer, frame []byte) error {
 	dets := c.FaceFinder.RunCascade(params, 0.0)
 	dets = c.FaceFinder.ClusterDetections(dets, 0)
 
-	drawer := gg.NewContext(bounds.Max.X, bounds.Max.Y)
-	drawer.DrawImage(img, 0, 0)
+	w.Write(frame)
 
-	for _, det := range dets {
-		if det.Q >= 5.0 {
-			drawer.DrawRectangle(
-				float64(det.Col-det.Scale/2),
-				float64(det.Row-det.Scale/2),
-				float64(det.Scale),
-				float64(det.Scale),
-			)
+	// drawer := gg.NewContext(bounds.Max.X, bounds.Max.Y)
+	// drawer.DrawImage(img, 0, 0)
 
-			drawer.SetLineWidth(3.0)
-			drawer.SetStrokeStyle(gg.NewSolidPattern(color.RGBA{R: 255, G: 0, B: 0, A: 255}))
-			drawer.Stroke()
-		}
+	if len(dets) == 0 {
+		return nil
 	}
 
+	for _, person := range dets {
+		if person.Q < 5.0 {
+			continue
+		}
+
+		x, y := person.Col-person.Scale/2, person.Row-person.Scale/2
+		x, y = x/10*10, y/10*10
+		log.Println(x, y)
+
+		break
+	}
+
+	// 485
+	// 485 / 100 round * 100
+
+	return nil
 	// return nil
-	return drawer.EncodePNG(w)
+	// return drawer.EncodePNG(w)
 }
 
 func GetActiveDevices() []*device.Device {

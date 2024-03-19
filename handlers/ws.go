@@ -110,7 +110,9 @@ func WebSocket(c *gin.Context) {
 					log.Errorf("user %s successful connected!", conn.LocalAddr())
 					Client = conn
 					conn.WriteMessage(websocket.TextMessage, []byte("connected"))
-					hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
+					if hub != nil {
+						hub.WriteMessage(websocket.TextMessage, []byte("connected:"+conn.RemoteAddr().String()))
+					}
 					devices, _ := ptz.GetDevices()
 					selectedCamera := ""
 					conn.WriteMessage(websocket.TextMessage, []byte("devices:"+strings.Join(devices, "|")))
