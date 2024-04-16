@@ -83,7 +83,7 @@ export default class Hub extends Component {
 
     setInterval(() => {
       this.generateQRCodeValue(false);
-    }, 5 * 1000);
+    }, 30 * 1000);
   }
 
   generateQRCodeValue(force) {

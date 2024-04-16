@@ -41,6 +41,7 @@ func NewServer(camera *Camera) *Server {
 func handler(w http.ResponseWriter, r *http.Request) {
 	conn, err := server.upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 	defer conn.Close()
