@@ -17,6 +17,7 @@ class Main extends Component {
       connecting: false,
       devices: {},
       selectedDevice: null,
+      selectedScreen: null,
       step: 300,
       isPtz: false,
       image: '',
@@ -80,7 +81,7 @@ class Main extends Component {
         let device = response.replace("selected-device:", "")
         const [deviceName, isPtz] = device.split(':')
         console.log("selected device:", deviceName, "ptz:", isPtz === "true")
-        this.setState({ selectedDevice: deviceName, isPtz: isPtz === "true" })
+        this.setState({ selectedDevice: deviceName, selectedScreen: Object.keys(this.state.devices)[1], isPtz: isPtz === "true" })
       }
     };
 
@@ -94,8 +95,11 @@ class Main extends Component {
   }
 
   handleDeviceChange = (event) => {
-    window.location.reload()
     this.socket.send("user:switch:" + event.target.value);
+  }
+
+  handleScreenChange = (event) => {
+    this.socket.send("user:dswitch:" + event.target.value);
   }
 
   moveCamera = (action) => {
@@ -152,6 +156,8 @@ class Main extends Component {
         faceDetect={this.faceDetect}
         isPtz={this.state.isPtz}
         image={this.state.image}
+        selectedScreen={this.state.selectedScreen} 
+        screenSelect={this.handleScreenChange} 
       />
     );
   }

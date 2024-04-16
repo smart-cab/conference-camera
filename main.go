@@ -21,8 +21,12 @@ func main() {
 		if err := camera.init(); err != nil {
 			log.Fatalf("failed start camera: %s", err.Error())
 		}
+		screen := NewCamera(30, 1920, 1080, devices[1].Name())
+		if err := screen.init(); err != nil {
+			log.Fatalf("failed start screen: %s", err.Error())
+		}
 
-		server = NewServer(camera)
+		server = NewServer(camera, screen)
 
 		log.Println("start stream method")
 		go server.stream()

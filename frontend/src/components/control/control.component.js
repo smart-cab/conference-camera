@@ -1,10 +1,9 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, changeScene, zoomCamera, stepSet, faceDetect, isPtz, image }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, changeScene, zoomCamera, stepSet, faceDetect, isPtz, image, selectedScreen, screenSelect }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
   const studioURL = `http://${window.location.hostname}:8888/api/v1/studio`;
-  console.log("ptz status:", isPtz)
 
   return (
     <div className="container center-container">
@@ -42,6 +41,15 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
             <h6>Настройки камеры</h6>
             <label className="pr-2">Камера:</label>
             <select onChange={deviceSelect} value={selectedDevice}>
+              {Object.entries(devices).map(([key, value]) => (
+                <option key={key} value={value}>
+                  {key}
+                </option>
+              ))}
+            </select>
+            <br></br>
+            <label className="pr-2">Экран:</label>
+            <select onChange={screenSelect} value={selectedScreen}>
               {Object.entries(devices).map(([key, value]) => (
                 <option key={key} value={value}>
                   {key}

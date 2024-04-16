@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
-	"github.com/kbinani/screenshot"
 	"github.com/vladimirvivien/go4vl/device"
 )
 
@@ -48,30 +47,6 @@ func getActiveDevicesForWs() ([]string, error) {
 	}
 
 	return result, nil
-}
-
-func captureScreen() <-chan []byte {
-	out := make(chan []byte)
-
-	go func() {
-		for {
-			bounds := screenshot.GetDisplayBounds(0)
-
-			img, err := screenshot.CaptureRect(bounds.Bounds())
-			if err != nil {
-				continue
-			}
-
-			buf := new(bytes.Buffer)
-			if err := jpeg.Encode(buf, img, nil); err != nil {
-				continue
-			}
-
-			out <- buf.Bytes()
-		}
-	}()
-
-	return out
 }
 
 func resizeImage(img image.Image, width, height int) image.Image {

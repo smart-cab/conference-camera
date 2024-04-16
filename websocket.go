@@ -19,13 +19,14 @@ type Server struct {
 	hub      *websocket.Conn
 	user     *websocket.Conn
 	camera   *Camera
+	screen   *Camera
 	token    string
 	mutex    sync.Mutex
 	scene    string
 	frame    chan []byte
 }
 
-func NewServer(camera *Camera) *Server {
+func NewServer(camera *Camera, screen *Camera) *Server {
 	return &Server{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
@@ -33,6 +34,7 @@ func NewServer(camera *Camera) *Server {
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		camera: camera,
+		screen: screen,
 		token:  "12345678",
 		scene:  "camera",
 	}
@@ -77,6 +79,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 			if data[1] == "switch" {
 				server.switchDevice(conn, data)
+			}
+			if data[1] == "dswitch" {
+				server.switchScreen(conn, data)
 			}
 			if data[1] == "move" {
 				server.move(conn, data)
@@ -199,6 +204,21 @@ func (s *Server) switchDevice(conn *websocket.Conn, data []string) {
 	s.camera = camera
 }
 
+func (s *Server) switchScreen(conn *websocket.Conn, data []string) {
+	if s.screen.device != nil {
+		s.screen.cancel()
+		s.screen.context.Done()
+	}
+
+	camera := NewCamera(30, 1920, 1080, data[2])
+	if err := camera.init(); err != nil {
+		s.sendUser("error:device")
+		return
+	}
+
+	s.screen = camera
+}
+
 func (s *Server) move(conn *websocket.Conn, data []string) {
 	var cmd uint32
 	value, err := strconv.Atoi(data[3])
@@ -247,8 +267,6 @@ func (s *Server) faceDetection(conn *websocket.Conn, data []string) {
 }
 
 func (s *Server) stream() {
-	screen := captureScreen()
-
 	idx := 0
 	for ; ; idx++ {
 		if s.user == nil {
@@ -259,11 +277,11 @@ func (s *Server) stream() {
 
 		switch s.scene {
 		case "merge":
-			frame = <-merge(s.camera.frames, screen)
+			frame = <-merge(s.camera.frames, s.screen.frames)
 		case "camera":
 			frame = <-s.camera.frames
 		case "screen":
-			frame = <-screen
+			frame = <-s.screen.frames
 		}
 
 		if idx%20 == 0 && s.scene == "camera" && s.camera.isPtz {
