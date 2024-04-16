@@ -34,7 +34,7 @@ func NewServer(camera *Camera) *Server {
 		},
 		camera: camera,
 		token:  "12345678",
-		scene:  "merge",
+		scene:  "camera",
 	}
 }
 
