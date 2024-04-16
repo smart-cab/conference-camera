@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from "./control.css";
 
-export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, zoomCamera, stepSet, faceDetect, isPtz }) {
+export default function Control({ devices, selectedDevice, deviceSelect, moveCamera, changeScene, zoomCamera, stepSet, faceDetect, isPtz, image }) {
   const videoURL = `http://${window.location.hostname}:8888/api/v1/video`;
   const studioURL = `http://${window.location.hostname}:8888/api/v1/studio`;
   console.log("ptz status:", isPtz)
@@ -11,12 +11,12 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
       <div className="inner-content">
         <div className="row">
           <div className="col-md-7">
-            <img src={videoURL} alt="Изображение" className="img-fluid video" />
+            <img src={image} alt="Изображение" className="img-fluid video" />
             {/* <img src={studioURL} alt="Изображение" className="img-fluid video" /> */}
           </div>
           <div className="col-md-5">
             <div className="text-center">
-              <h3>1234 - Камера конференции</h3>
+              <h3>{process.env.REACT_APP_SCHOOL} - Камера конференции</h3>
             </div>
             <hr></hr>
             { isPtz ?
@@ -54,6 +54,12 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
             <br></br>
             <label className="pr-2">Отслеживание лица:</label>
             <input type="checkbox" onChange={(event) => faceDetect(event)}></input>
+            <hr></hr>
+            <div style={{display: "flex", gap: "5px"}}>
+                <button className="scene-button" onClick={() => changeScene("camera")}>Камера</button>
+                <button className="scene-button" onClick={() => changeScene("screen")}>Экран</button>
+                <button className="scene-button" onClick={() => changeScene("merge")}>Совмещенный</button>
+            </div>
             <hr></hr>
             <span className="text-muted text-left">
               DEBUG INFO:

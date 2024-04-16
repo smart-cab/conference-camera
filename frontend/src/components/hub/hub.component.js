@@ -29,12 +29,18 @@ export default class Hub extends Component {
     };
 
     this.socket.onmessage = (event) => {
-      const response = event.data;
+      let response = '';
+      try {
+        response = event.data;
+        let check = response.startsWith('a');
+      } catch (error) {
+        return;
+      }
+
       console.log('Received response from socket:', response);
       if (response.startsWith("token:")) {
         // Получаем токен от бека и генерируем новый QR код
-        const token = `http://${window.location.hostname}:3000/?token=${response.replace("token:", "")}`;
-        this.setState({ token });
+        this.setState({ token: response.replace("token:", "") });
       } 
       else if (response.startsWith("error:")) 
       {

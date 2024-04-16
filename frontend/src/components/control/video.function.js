@@ -12,7 +12,7 @@ function VideoPlayer() {
 
   return (
     <div>
-      <img src="http://192.168.1.13:8888/api/v1/video" />
+      <img id="video-websocket" />
     </div>
   );
 }

@@ -19,6 +19,7 @@ class Main extends Component {
       selectedDevice: null,
       step: 300,
       isPtz: false,
+      image: '',
     }
 
     console.log(window.location.hostname)
@@ -38,6 +39,11 @@ class Main extends Component {
 
     this.socket.onmessage = (event) => {
       const response = event.data;
+      if (response.startsWith('data:image')) {
+        this.setState({ image: response })
+        return
+      }
+
       console.log('Received response from socket:', response);
 
       if (response == 'connected') {
@@ -83,13 +89,19 @@ class Main extends Component {
 
   handleDeviceChange = (event) => {
     window.location.reload()
-    this.socket.send("user:device:" + event.target.value);
+    this.socket.send("user:switch:" + event.target.value);
   }
 
   moveCamera = (action) => {
     // alert("MOVE")
     console.log("move ptz:", action, ". Step:", this.state.step)
     this.socket.send("user:move:" + action + ":" + this.state.step)
+  }
+
+  changeScene = (action) => {
+    // alert("MOVE")
+    console.log("change scene:", action)
+    this.socket.send("user:scene:" + action)
   }
 
   zoomCamera = (event) => {
@@ -128,10 +140,12 @@ class Main extends Component {
         selectedDevice={this.state.selectedDevice} 
         deviceSelect={this.handleDeviceChange} 
         moveCamera={this.moveCamera} 
+        changeScene={this.changeScene} 
         zoomCamera={this.zoomCamera} 
         stepSet={this.stepSet} 
         faceDetect={this.faceDetect}
         isPtz={this.state.isPtz}
+        image={this.state.image}
       />
     );
   }

@@ -40,3 +40,16 @@
 .zoomRange {
     width: 100%;
 }
+
+.scene-button {
+    padding-left: 5px;
+    padding-right: 5px;
+    margin: 1px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+}

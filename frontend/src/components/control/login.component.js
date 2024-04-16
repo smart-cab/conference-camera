@@ -13,7 +13,7 @@ export default function Login({ onHandleScan, error }) {
         <div className="row">
           <div className="col-12">
             <div className="text-center mb-4">
-              <h1>1234</h1>
+              <h1>{process.env.REACT_APP_SCHOOL}</h1>
               <h1 className="h3 mb-3 font-weight-normal">Сканируйте QR код</h1>
             </div>
 
