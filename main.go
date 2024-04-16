@@ -23,6 +23,9 @@ func main() {
 		}
 
 		server = NewServer(camera)
+	} else {
+		log.Fatalf("server cannot be started without camera")
+		return
 	}
 
 	// create server and handle a websocket
