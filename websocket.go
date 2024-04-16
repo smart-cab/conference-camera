@@ -247,11 +247,13 @@ func (s *Server) faceDetection(conn *websocket.Conn, data []string) {
 }
 
 func (s *Server) stream() {
+	log.Println("started stream video")
 	screen := captureScreen()
 
 	idx := 0
 	for ; ; idx++ {
 		if s.user == nil {
+			log.Println("user is null")
 			continue
 		}
 
@@ -272,6 +274,7 @@ func (s *Server) stream() {
 
 		// for frame := range s.frame {
 		str := base64.StdEncoding.EncodeToString(frame)
+		log.Println(string(str))
 		urldata := "data:image/jpeg;base64," + string(str)
 		server.sendUser(urldata)
 		// }
