@@ -266,13 +266,15 @@ func (s *Server) stream() {
 			frame = <-screen
 		}
 
+		log.Println("send frame")
+
 		if idx%20 == 0 && s.scene == "camera" && s.camera.isPtz {
 			s.camera.runFaceDetect(frame)
 		}
 
 		// for frame := range s.frame {
 		str := base64.StdEncoding.EncodeToString(frame)
-		log.Println(string(str))
+		log.Println("frame:", string(str))
 		urldata := "data:image/jpeg;base64," + string(str)
 		server.sendUser(urldata)
 		// }
