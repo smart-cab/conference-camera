@@ -123,7 +123,7 @@ export default class Hub extends Component {
 
     return (
       // Отображаем QR код для подключения
-      <Qr token={this.state.token} />
+      <Qr token={this.state.token} onEnterCode={this.enterCode} />
     );
   }
 }

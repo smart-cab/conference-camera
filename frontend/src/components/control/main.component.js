@@ -31,10 +31,16 @@ class Main extends Component {
 
 
   componentDidMount() {
+    this.enterCode = (event) => {
+      this.socket.send("user:connect:" + event.target.value)
+    }
+
     this.socket.onopen = () => {
       this.socket.send("user:init");
       this.setState({ connecting: true })
-      this.socket.send("user:connect:" + this.token)
+      if (this.token) {
+        this.socket.send("user:connect:" + this.token)
+      }
     };
 
     this.socket.onmessage = (event) => {
@@ -129,7 +135,7 @@ class Main extends Component {
     if (!this.state.auth) {
       // Отображаем сканнер QR кода
       return (
-        <Login onHandleScan={this.handleScan} error={this.state.error} />
+        <Login onEnterCode={this.enterCode} error={this.state.error} />
       );
     }
 
