@@ -48,6 +48,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("client connected")
 
+	go server.stream()
+
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
@@ -245,13 +247,11 @@ func (s *Server) faceDetection(conn *websocket.Conn, data []string) {
 }
 
 func (s *Server) stream() {
-	log.Println("started stream video")
 	screen := captureScreen()
 
 	idx := 0
 	for ; ; idx++ {
 		if s.user == nil {
-			log.Println("user is null")
 			continue
 		}
 
@@ -266,17 +266,12 @@ func (s *Server) stream() {
 			frame = <-screen
 		}
 
-		log.Println("send frame")
-
 		if idx%20 == 0 && s.scene == "camera" && s.camera.isPtz {
 			s.camera.runFaceDetect(frame)
 		}
 
-		// for frame := range s.frame {
 		str := base64.StdEncoding.EncodeToString(frame)
-		log.Println("frame:", string(str))
 		urldata := "data:image/jpeg;base64," + string(str)
 		server.sendUser(urldata)
-		// }
 	}
 }
