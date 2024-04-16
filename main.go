@@ -23,6 +23,9 @@ func main() {
 		}
 
 		server = NewServer(camera)
+
+		log.Println("start stream method")
+		go server.stream()
 	} else {
 		log.Fatalf("server cannot be started without camera")
 		return

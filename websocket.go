@@ -48,8 +48,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	log.Println("client connected")
 
-	go server.stream()
-
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
