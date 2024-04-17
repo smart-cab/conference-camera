@@ -19,7 +19,7 @@ FROM joseluisq/static-web-server:2-alpine
 
 WORKDIR /app
 
-COPY --from=builder /app/build /app
+COPY --from=builder /app/build /app /app/.env.production
 
 EXPOSE 8787
 
