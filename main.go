@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -17,13 +18,25 @@ func main() {
 
 	devices := getActiveDevices()
 	if len(devices) > 0 {
-		camera := NewCamera(30, 600, 400, devices[0].Name())
-		if err := camera.init(); err != nil {
-			log.Fatalf("failed start camera: %s", err.Error())
+		var camera, screen *Camera
+		for _, device := range devices {
+			if strings.Contains(device.Capability().Card, "PTZ") {
+				camera = NewCamera(30, 600, 400, device.Name())
+				if err := camera.init(); err != nil {
+					log.Fatalf("failed start camera: %s", err.Error())
+				}
+			}
+			log.Println(device.Capability().Card)
+			if strings.Contains(device.Capability().Card, "HDMI") {
+				screen = NewCamera(30, 1280, 720, device.Name())
+				if err := screen.init(); err != nil {
+					log.Fatalf("failed start screen: %s", err.Error())
+				}
+			}
 		}
-		screen := NewCamera(30, 1920, 1080, devices[1].Name())
-		if err := screen.init(); err != nil {
-			log.Fatalf("failed start screen: %s", err.Error())
+
+		if camera == nil || screen == nil {
+			log.Fatalf("cannot be started a project, because camera is %v and screen is %v", camera, screen)
 		}
 
 		server = NewServer(camera, screen)

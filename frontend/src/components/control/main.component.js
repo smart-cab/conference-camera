@@ -81,7 +81,12 @@ class Main extends Component {
         let device = response.replace("selected-device:", "")
         const [deviceName, isPtz] = device.split(':')
         console.log("selected device:", deviceName, "ptz:", isPtz === "true")
-        this.setState({ selectedDevice: deviceName, selectedScreen: Object.keys(this.state.devices)[1], isPtz: isPtz === "true" })
+        this.setState({ selectedDevice: deviceName, isPtz: isPtz === "true" })
+      } else if (response.startsWith("selected-screen:")) {
+        let device = response.replace("selected-screen:", "")
+        const [deviceName, isPtz] = device.split(':')
+        console.log("selected screen:", deviceName, "ptz:", isPtz === "true")
+        this.setState({ selectedScreen: deviceName })
       }
     };
 

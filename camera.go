@@ -58,10 +58,6 @@ func (c *Camera) init() error {
 
 	c.context, c.cancel = context.WithCancel(context.Background())
 
-	if err := c.initFace(); err != nil {
-		return err
-	}
-
 	if err := c.device.Start(c.context); err != nil {
 		log.Fatalf("stream capture: %s", err)
 	}
@@ -69,6 +65,12 @@ func (c *Camera) init() error {
 	c.frames = c.device.GetOutput()
 	if err := c.sendCommand(CTRL_ZOOM, 100); err == nil {
 		c.isPtz = true
+	}
+
+	if c.isPtz {
+		if err := c.initFace(); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -108,6 +110,7 @@ func (c *Camera) runFaceDetect(frame []byte) error {
 
 	img, _, err := image.Decode(bytes.NewReader(frame))
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -148,29 +151,32 @@ func (c *Camera) runFaceDetect(frame []byte) error {
 		x, y = x/100*100, y/100*100
 		log.Println(x, y)
 
+		var step int32 = 100
+		timeWait := 50
+
 		moveX, moveY := float64(centerX-x)/100, float64(centerY-y)/100
 		if moveX < 0 {
 			for i := 0; i < int(math.Abs(moveX)); i++ {
-				c.sendCommand(CTRL_HORIZONTAL, 200)
-				time.Sleep(time.Millisecond * 100)
+				c.sendCommand(CTRL_HORIZONTAL, step)
+				time.Sleep(time.Millisecond * time.Duration(timeWait))
 			}
 		}
 		if moveX > 0 {
 			for i := 0; i < int(math.Abs(moveX)); i++ {
-				time.Sleep(time.Millisecond * 100)
-				c.sendCommand(CTRL_HORIZONTAL, -200)
+				c.sendCommand(CTRL_HORIZONTAL, -step)
+				time.Sleep(time.Millisecond * time.Duration(timeWait))
 			}
 		}
 		if moveY < 0 {
 			for i := 0; i < int(math.Abs(moveY)); i++ {
-				c.sendCommand(CTRL_VERTICAL, 100)
-				time.Sleep(time.Millisecond * 100)
+				c.sendCommand(CTRL_VERTICAL, step)
+				time.Sleep(time.Millisecond * time.Duration(timeWait))
 			}
 		}
 		if moveY > 0 {
 			for i := 0; i < int(math.Abs(moveY)); i++ {
-				time.Sleep(time.Millisecond * 100)
-				c.sendCommand(CTRL_VERTICAL, -100)
+				c.sendCommand(CTRL_VERTICAL, -step)
+				time.Sleep(time.Millisecond * time.Duration(timeWait))
 			}
 		}
 

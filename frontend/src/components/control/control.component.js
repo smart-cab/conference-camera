@@ -50,7 +50,7 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
             <br></br>
             <label className="pr-2">Экран:</label>
             <select onChange={screenSelect} value={selectedScreen}>
-              {Object.entries(devices).map(([key, value]) => (
+              {Object.entries(devices).reverse().map(([key, value]) => (
                 <option key={key} value={value}>
                   {key}
                 </option>
@@ -68,13 +68,6 @@ export default function Control({ devices, selectedDevice, deviceSelect, moveCam
                 <button className="scene-button" onClick={() => changeScene("screen")}>Экран</button>
                 <button className="scene-button" onClick={() => changeScene("merge")}>Совмещенный</button>
             </div>
-            <hr></hr>
-            <span className="text-muted text-left">
-              DEBUG INFO:
-              <ul>
-                <li>{videoURL}</li>
-              </ul>
-            </span>
           </div>
         </div>
       </div>
