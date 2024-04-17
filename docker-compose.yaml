@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  backend:
+    container_name: confcam-backend
+    build:
+      context: .
+    ports:
+      - 8888:8888
+    networks:
+      - default
+    restart: always
+
+  frontend:
+    container_name: confcam-frontend
+    build:
+      context: ./frontend
+    ports:
+      - 8787:8787
+    networks:
+      - default
+    stop_grace_period: 1s
+    restart: always
+
+networks:
+  default:
+    driver: bridge
+    name: smartcab
+    external: true
