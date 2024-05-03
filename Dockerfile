@@ -16,7 +16,7 @@ FROM alpine:3.18
 
 WORKDIR /app
 
-COPY --from=builder /app/main /app/.env /app
+COPY --from=builder /app/main /app/.env /app/facefinder.model /app
 
 EXPOSE 8888
 
