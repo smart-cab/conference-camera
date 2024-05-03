@@ -10,9 +10,9 @@ services:
     networks:
       - default
     restart: always
+    privileged: true
     devices:
-      - /dev/video0:/dev/video0
-      - /dev/video1:/dev/video1
+      - /dev:/dev
 
   frontend:
     container_name: confcam-frontend
